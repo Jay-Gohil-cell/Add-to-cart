@@ -1,12 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   products = [
-    { id: 1, name: "Mixer", price: 18.00},
-    { id: 2, name: "Blender", price: 12.00},
-    { id: 3, name: "Table fan", price: 29.00},
-    { id: 4, name: "Mixer", price: 11.00},
+    { id: 1, name: "Mixer", price:18},
+    { id: 2, name: "Blender", price:12},
+    { id: 3, name: "Table fan", price:11},
+    { id: 4, name: "Mixer", price:10},
   ];
 
-let total = 0;
 let cart = JSON.parse(localStorage.getItem("shopping_cart")) || [];
 
   const productList = document.getElementById("product-list");
@@ -43,15 +42,14 @@ let cart = JSON.parse(localStorage.getItem("shopping_cart")) || [];
   }
 
   function showCart(){
-    
-
+    let total = 0;
     if(cart.length){
       cartItems.innerHTML = ``;
       cart.forEach((item ,index) => {
         total += item.price;
         const itemShow = document.createElement("div");
         itemShow.innerHTML = `
-        <span>${item.name} - $${item.price}</span>
+        <span>${item.name} - $ ${item.price}</span>
         <button btn-id="${index}">❌</button>
         `;
         cartItems.appendChild(itemShow);
@@ -60,6 +58,7 @@ let cart = JSON.parse(localStorage.getItem("shopping_cart")) || [];
         itemShow.addEventListener("click",(e) => {
           if(e.target.tagName === "BUTTON"){
             const deleteId = Number(e.target.getAttribute("btn-id"));
+            total -= item.price;
             cart.splice(deleteId , 1);
             showCart();
             addToCart();
@@ -79,8 +78,9 @@ let cart = JSON.parse(localStorage.getItem("shopping_cart")) || [];
 
   checkoutButton.addEventListener("click" , () => {
     cart.length = 0;
-    alert("Order confirm , Total amount : " + total);
+    alert("Order confirm ");
     cartItems.innerHTML = `<p>Your cart is empty`;
+    total = 0;
     addToCart();
   });
 });
