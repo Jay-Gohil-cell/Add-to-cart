@@ -1,108 +1,86 @@
-/* styles.css */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  products = [
+    { id: 1, name: "Mixer", price:18},
+    { id: 2, name: "Blender", price:12},
+    { id: 3, name: "Table fan", price:11},
+    { id: 4, name: "Mixer", price:10},
+  ];
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #121212;
-  color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+let cart = JSON.parse(localStorage.getItem("shopping_cart")) || [];
 
-.container {
-  width: 400px;
-  padding: 20px;
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
+  const productList = document.getElementById("product-list");
+  const cartItems = document.getElementById("cart-items");
+  const emptyCartMessage = document.getElementById("empty-cart");
+  const cartTotal = document.getElementById("cart-total");
+  const totalPrice = document.getElementById("total-price");
+  const checkoutButton = document.getElementById("checkout-btn");
 
-h1,
-h2 {
-  margin-bottom: 20px;
-}
+  products.forEach(product => {
+    const createDiv = document.createElement("div");
+    createDiv.classList.add("product");
+    createDiv.innerHTML = `
+    <span> ${product.name} - $ ${product.price}</span>
+    <button data-id="${product.id}"> Add to cart </button>
+    `;
 
-#product-list {
-  margin-bottom: 30px;
-}
+    createDiv.addEventListener("click",(e) =>{
+      if(e.target.tagName === "BUTTON"){
+        let addProductId = Number(e.target.getAttribute("data-id"));
+        const addProduct = products.find((p) => p.id === addProductId);
+        cart.push(addProduct);
+        addToCart();
+      }
+    })
+    
+    productList.appendChild(createDiv);
+    showCart();
+  });
+  
+  function addToCart(){
+    localStorage.setItem("shopping_cart",JSON.stringify(cart));
+    showCart();
+  }
 
-.product {
-  background-color: #333333;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-}
+  function showCart(){
+    let total = 0;
+    if(cart.length){
+      cartItems.innerHTML = ``;
+      cart.forEach((item ,index) => {
+        total += item.price;
+        const itemShow = document.createElement("div");
+        itemShow.innerHTML = `
+        <span>${item.name} - $ ${item.price}</span>
+        <button btn-id="${index}">❌</button>
+        `;
+        cartItems.appendChild(itemShow);
+        cartTotal.classList.remove("hidden");
 
-.product button {
-  background-color: #6200ea;
-  border: none;
-  padding: 5px 10px;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+        itemShow.addEventListener("click",(e) => {
+          if(e.target.tagName === "BUTTON"){
+            const deleteId = Number(e.target.getAttribute("btn-id"));
+            total -= item.price;
+            cart.splice(deleteId , 1);
+            showCart();
+            addToCart();
+          }
+        })
+      });
+    }else {
+      showError();
+    }
+    totalPrice.textContent =`$ ${total}`;
+  }
+  
+  function showError(){
+    cartTotal.classList.add("hidden");
+    cartItems.innerHTML = `<p>Your cart is empty`;
+  }
 
-.product button:hover {
-  background-color: #3700b3;
-}
-
-#cart-items div {
-  display: flex;
-  justify-content: space-between;
-}
-
-#cart-items {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap :8px;
-  padding: 15px 50px;
-  border: 2px solid gray;
-  border-radius: 20px;
-}
-#cart-items button {
-  background-color: #7b270d;
-  border: none;
-  padding: 3px 8px;
-  color: black;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#cart-items button:hover {
-  background-color: #ab1d07;
-}
-
-
-#cart-total {
-  text-align: right;
-}
-
-#checkout-btn {
-  background-color: #6200ea;
-  border: none;
-  padding: 10px;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#checkout-btn:hover {
-  background-color: #3700b3;
-}
-
-.hidden {
-  display: none;
-}
+  checkoutButton.addEventListener("click" , () => {
+    cart.length = 0;
+    alert("Order confirm ");
+    cartItems.innerHTML = `<p>Your cart is empty`;
+    total = 0;
+    addToCart();
+  });
+});
